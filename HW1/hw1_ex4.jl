@@ -9,13 +9,18 @@ b = randn(n)
 
 mmax = 80
 Km = zeros(n,mmax)
+Km[:,1] = b/norm(b);
 λ = zeros(mmax,2)
 #figure()
 for m in 1:mmax
     println("Step $m:")
     # build Krylov space
-    v = A^(m-1)*b;
-    Km[:,m] = v/norm(v);
+    if m > 1
+        v = A*Km[:,m-1];
+        Km[:,m] = v/norm(v);
+        # min angle
+        display(acos(maximum(abs.(Km[:,m]'*Km[:,1:m-1])))*180/pi)
+    end
     # Km^TKm
     KTK = transpose(Km[:,1:m])*Km[:,1:m]
     # Km^T A Km
