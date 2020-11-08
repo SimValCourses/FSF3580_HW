@@ -2,18 +2,20 @@ using LinearAlgebra, Random, MatrixDepot, PyPlot
 include("GS.jl")
 include("arnoldi.jl")
 
-n = 100
+nn = 100
 Random.seed!(0)
-A = randn(n,n)
+A = matrixdepot("wathen",nn,nn)
+n = size(A)[1]
 b = randn(n)
 
 mmax = 80
 Km = zeros(n,mmax)
 Km[:,1] = b/norm(b);
-λ = zeros(mmax,2)
-#figure()
+λAM = zeros(mmax,mmax)
+λGM = zeros(mmax,mmax)
+
 for m in 1:mmax
-    println("Step $m:")
+    local Q,Hb,H
     # build Krylov space
     if m > 1
         v = A*Km[:,m-1];
@@ -28,7 +30,8 @@ for m in 1:mmax
     # Solve generalized EVP
     Fg = eigen(KTAK,KTK)
     # find largest EigVal
-    λ[m,1] = sort(abs.(Fg.values),rev=true)[1]
+    I = sortperm(abs.(Fg.values),rev=true)
+    λGM[m,1:m] = real(Fg.values[I])
 
     # arnoldi
     Q,Hb = arnoldi(A,b,m,3)
@@ -37,10 +40,22 @@ for m in 1:mmax
     # find Ritz pair
     Fa = eigen(H)
     # find largest Eigval
-    λ[m,2] = sort(abs.(Fa.values),rev=true)[1]
-    println(λ[m,:])
+    I = sortperm(abs.(Fa.values),rev=true)
+    λAM[m,1:m] = real(Fa.values[I])
 end
-figure()
+figure(1)
 x = 1:mmax
-plot(x,λ[:,1])
-plot(x,λ[:,2])
+# (2)
+for m in 1:mmax
+    m==1 ? plot(x[m:mmax],λGM[m:mmax,m],color="r",label="(2)") : plot(x[m:mmax],λGM[m:mmax,m],color="r")
+
+end
+# AM
+for m in 1:mmax
+    m==1 ? plot(x[m:mmax],λAM[m:mmax,m],color="b",label="AM") : plot(x[m:mmax],λAM[m:mmax,m],color="b")
+end
+xlabel("Krylov space dimension")
+ylabel("Re(λ_r)")
+ylim(0,400)
+legend()
+return

@@ -1,116 +1,131 @@
-using MAT, PyPlot, Statistics, Random
+using MAT, PyPlot, Statistics, Random, LinearAlgebra
 include("arnoldi.jl")
 include("GS.jl")
 Random.seed!(0)
 bw = MAT.matread("Bwedge.mat")
 
-eigvals = bw["B_eigvals"];
+evA = bw["B_eigvals"];
 A = bw["B"];
-n = length(eigvals)
-modeigs = vec([ abs(eig+15) for eig in eigvals ])
-real = vec([ eig.re for eig in eigvals ])
-imag = vec([ eig.im for eig in eigvals ])
+n = length(evA)
 
-figure(1)
-subplot(3,3,1)
-scatter(real,imag)
-# circumscribed circles
+# a) and b) eigvals with fastest convergence and convergence rate estimates
 cv = [ -5+0.5im -25-15im -25+15im ]
 rv = [ 14 27 27 ]
-cl = ["black" "red" "blue"]
-cr = zeros(3)
+cl = ["k" "r" "b"]
+
+figure(1)
+scatter(real(evA),imag(evA))
 for i in 1:3
-    scatter(real[i],imag[i],s=100,color=cl[i],marker="x")
-    ctr = cv[i]
-    rad = rv[i]
-    scatter(ctr.re,ctr.im,color="black")
-    plt.gcf().gca().add_artist(plt.Circle((ctr.re,ctr.im), rad, fill=false, color=cl[i]))
-    cr[i] = rad/(abs(eigvals[i]-ctr))
-    println("Convergence rate for EV $i ($(eigvals[i])): $(cr[i])")
+    # eigenvalues that will converge fastest
+    plot = scatter(real(evA)[i],imag(evA)[i],s=100,color=cl[i],marker="x")
+    # center of circles
+    scatter(real(cv[i]),imag(cv[i]),color="k")
+    # circles
+    plt.gcf().gca().add_artist(plt.Circle((real(cv[i]),imag(cv[i])), rv[i], fill=false, color=cl[i]))
+    # convergence rate estimate
+    cr = rv[i]/(abs(evA[i]-cv[i]))
+    println("Convergence rate for EV $i ($(evA[i])): $cr")
 end
 plt.gcf().gca().set_aspect("equal")
-ylim(-15,15)
-xlim(-60,10)
+ylim(-25,25); xlim(-60,10)
+ylabel("Im"); xlabel("Re")
 
-# Arnoldi
-b = randn(n)
+# c) Arnoldi method and Ritz estimates
+b = randn(n)                    # starting vector
+Q,H = arnoldi(A,b,40,3);        # run Arnoldi method
 
-Q,H = arnoldi(A,b,40,3);
+ksteps = [2 4 8 10 20 30 40];   # plot steps
+tol = 1e-10                     # convergence criterion
+ϵ_1 = zeros(ksteps[end])
 
-ksteps = [2 4 8 10 20 30 40];
-error = zeros(length(ksteps))
-
-for (j,k) in enumerate(ksteps)
-    subplot(3,3,j+1)
-    # all eigvals
-    scatter(real,imag)
-    # Ritz estimates
+Peigs = complex(zeros(ksteps[end],ksteps[end]))
+for k in 1:ksteps[end]
+    # Ritz estimates as eigvals of Hessenberg matrix
     P = eigen(H[1:k,1:k])
-    rl = [ eig.re for eig in P.values ]
-    ig = [ eig.im for eig in P.values ]
-    # error
-    error[j] = abs.(eigvals[1]-P.values[1])
+    Peigs[k,1:k] = P.values
+    # error for first eigenvalue
+    ϵ_1[k] = abs.(evA[1]-Peigs[k,1])
+end
+# find convergence step
+idx = findfirst(x -> x < tol, ϵ_1)
 
-    scatter(rl,ig,s=50,marker="x",color="black")
-    # eigvals to which we converge fastest
+# plotting
+figure(2)
+for (j,k) in enumerate(ksteps)
+    subplot(4,2,j)
+    # all eigvals
+    plot = scatter(real(evA),imag(evA))
+    # plot all estimates
+    scatter(real(Peigs[j,1:k]),imag(Peigs[j,1:k]),s=50,marker="x",color="k")
+    # mark eigvals to which we converge fastest (furthest away from cluster)
     for i in 1:3
-        ev = eigvals[i]
-        scatter(ev.re,ev.im,s=200,color="none",edgecolor="red")
+        scatter(evA[i].re,evA[i].im,s=200,color="none",edgecolor="red")
     end
     plt.gcf().gca().set_aspect("equal")
-    ylim(-15,15)
-    xlim(-60,10)
-    ylabel("Im")
+    ylim(-15,15); xlim(-60,10)
     xlabel("Re")
-    title("Ritz estimates after $k iterations")
+    mod(j,2) == 1 ? ylabel("Im") : nothing
+    title("Iteration $k")
 end
-figure(2)
-semilogy(vec(ksteps),1e-10*ones(7,1),color="black")
+
+# plot convergence of outermost eigenvalue
+figure(3)
+steps = 1:ksteps[end]
+p = semilogy(steps,ϵ_1,label="|ϵ_1|")
+semilogy(steps,1e-10*ones(ksteps[end]),color="k",label="convergence threshold")
+vlines(steps[idx],1e-15,100,colors="k",linestyles="dashed",label="k = $idx")
 xticks(vec(ksteps))
-semilogy(vec(ksteps),error,label="|λ_1 - λ_exact|")
-title("Convergence to the outermost eigenvalue")
+ylabel("|ϵ| = | λ - λ_exact |"); xlabel("iteration count k")
 legend()
 
-
-# Shift and invert
-σ = -11 + 2im
-B = A - σ*I
+# d) Shift and invert
+shiftv = [ -10 -7+2im -9.8+1.5im ]
 figure(5)
-Beigs = [ 1/(eig - σ) for eig in eigvals ]
-Breal = [ eig.re for eig in Beigs ]
-Bimag = [ eig.im for eig in Beigs ]
-scatter(Breal,Bimag)
-tidx = argmin(abs.(eigvals .- σ))
-t = Beigs[tidx]
-scatter(t.re,t.im,s=200,color="none",edgecolor="red")
-ct = -0.7+0.55im
-ρt = 1.8
-plt.gcf().gca().add_artist(plt.Circle((ct.re,ct.im), ρt, fill=false, color="black"))
-plt.gcf().gca().set_aspect("equal")
-ylim(-3,3)
-xlim(-3,5)
-cr = ρt/(abs(Beigs[tidx]-ct))
-println("Convergence rate for EV 1 ($(Beigs[tidx])): $cr")
-
-
-b = randn(n)
-
-Q,H = arnoldiSI(B,b,40,3);
-
-for (j,k) in enumerate(ksteps)
-    global tidx
-    # Ritz estimates
-    P = eigen(H[1:k,1:k])
-    # Convert back
-    eigsA = [ 1/eig + σ for eig in P.values ]
-    # error
-    error[j] = abs.(eigvals[tidx]-eigsA[k])
-end
-figure(6)
-semilogy(vec(ksteps),1e-10*ones(7,1),color="black")
-xticks(vec(ksteps))
-semilogy(vec(ksteps),error,label="|λ_1 - λ_exact|")
-title("Convergence to the outermost eigenvalue")
+idx = argmin(abs.(evA .- (-9.8 + 2im)))
+subplot(2,2,1)
+scatter(real(evA),imag(evA))
+scatter(evA[idx].re,evA[idx].im,s=200,color="none",edgecolor="red",label="target")
+title("Eigenvalues of A")
+ylabel("Im")
 legend()
 
-return
+for (i,σ) in enumerate(shiftv)
+    local B, evB
+    # choose shift & build B matrix
+    σ = shiftv[i]
+    B = A - σ*I
+    # plot eigvals of B
+    subplot(2,2,i+1)
+    evB = [ 1/(eig - σ) for eig in evA ]
+    plot = scatter(real(evB),imag(evB))
+    # find eigval closes to shift in spectrum of A
+    tidx = argmin(abs.(evA .- σ))
+    scatter(real(evB[tidx]),imag(evB[tidx]),s=200,color="none",edgecolor="r")
+    #plt.gcf().gca().set_aspect("equal")
+    ylim(-2,1); xlim(-1,1)
+    mod(i,2)==0 ? ylabel("Im") : nothing
+    i>1 ? xlabel("Re") : nothing
+    title("σ = $σ")
+end
+#suptitle("Eigenvalues of A and B(σ)")
+
+b = randn(n)                        # starting vector
+msteps = [ 10 20 30 ]               # output steps
+println("Target: $(evA[idx])")
+for σ in shiftv
+    local B, Q, H
+    B = A - σ*I
+    Q,H = arnoldiSI(B,b,msteps[end],3); # Arnoldi shift and invert
+    println("σ = $σ")
+    for (j,m) in enumerate(msteps)
+        global idx
+        # Ritz estimates
+        P = eigen(H[1:m,1:m])
+        # Convert back
+        evPc = [ 1/eig + σ for eig in P.values ]
+        idx2 = argmin(abs.(evPc .- (-9.8 + 2im)))
+        # error
+        ϵ_SI = abs.(evA[idx] - evPc[idx2])
+        println("\t m = $m: ϵ = $(ϵ_SI)")
+    end
+end

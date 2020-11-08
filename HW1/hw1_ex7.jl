@@ -15,16 +15,14 @@ mv = [ 10, 20 ] # number of iterations
 kv = [ 5, 10 ]  # basis for new starting vector
 n = 100         # number of restarts
 v = 3           # GS scheme (3: DCGS)
-
+#=
 t = ev[1]  # target
 figure(1); x = collect(1:n)
-for (m,k) in zip(mv,kv)
-    global iterror
+for (l,(m,k)) in enumerate(zip(mv,kv))
     outv = complex(zeros(n,k))
-    iterror = zeros(n)
     for i in 1:n
         local Q,H,R
-        global b,error
+        global b
         i==1 ? println("Startup") : println("Restart $(i-1)")
         Q,H = arnoldi(A,b,m,v)
         # extract Ritz values
@@ -35,18 +33,37 @@ for (m,k) in zip(mv,kv)
         # construct restart vector
         weights = ones(k,1)
         b = Rv*weights
-        iterror[i] = abs(outv[i,1]-t)
     end
     figure(1)
-    semilogy(x,iterror)
-    figure(k+1)
-    scatter(map(x->x.re,ev),map(x->x.im,ev))
-    scatter(map(x->x.re,outv[n,:]),map(x->x.im,outv[n,:]),marker="x",color="red")
-    title("Setup $m iterations per AM run, restart v build from $k R-v")
+    subplot(2,2,l)
+    for i = 1:k
+        scatter(x,real(outv[:,i]),10)
+    end
+    l==1 ? ylabel("Re(eig)") : nothing
+    title("m=$m, k=$k")
+
+    subplot(2,2,l+2)
+    for i = 1:k
+        scatter(x,imag(outv[:,i]),10)
+    end
+    xlabel("Restart count")
+    l==1 ? ylabel("Im(eig)") : nothing
+
+    figure(2)
+    subplot(1,2,l)
+    scatter(real(ev),imag(ev))
+    scatter(real(outv[n,:]),imag(outv[n,:]),marker="x",color="r")
+    l==1 ? ylabel("Im") : nothing
+    xlabel("Re")
+    title("m=$m, k=$k")
+    plt.gcf().gca().set_aspect("equal")
+    #title("Setup $m iterations per AM run, restart v build from $k R-v")
 end
+=#
 
 tol = 1e-10
-for (p,k) in zip(mv,kv)
+figure(3)
+for (i,(p,k)) in enumerate(zip(mv,kv))
     global tol, A
     local n
     n=length(ev)
@@ -57,7 +74,11 @@ for (p,k) in zip(mv,kv)
     ee2=ev
     #I2=sortperm(vec(abs.(ee2)),rev=true); ee2=ee2[I2]; ee2=ee2[1:k];
     I1=sortperm(vec(abs.(ee)),rev=true);  ee=ee[I1];
-    figure(p)
-    scatter(map(x->x.re,ee2),map(x->x.im,ee2))
-    scatter(map(x->x.re,ee),map(x->x.im,ee),marker="x",color="red")
+    subplot(1,2,i)
+    scatter(real(ee2),imag(ee2))
+    scatter(real(ee),imag(ee),marker="x",color="r")
+    plt.gcf().gca().set_aspect("equal")
+    i==1 ? ylabel("Im") : nothing
+    xlabel("Re")
+    title("m=$p, k=$k")
 end
