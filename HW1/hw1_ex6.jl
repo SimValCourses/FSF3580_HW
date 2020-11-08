@@ -1,63 +1,116 @@
-using LinearAlgebra, MAT, PyPlot, Statistics, Random
+using MAT, PyPlot, Statistics, Random
 include("arnoldi.jl")
-include("arnupd.jl")
-include("arnoldi_sorensen.jl")
 include("GS.jl")
 Random.seed!(0)
 bw = MAT.matread("Bwedge.mat")
 
-ev = bw["B_eigvals"];
+eigvals = bw["B_eigvals"];
 A = bw["B"];
-N = length(ev)
+n = length(eigvals)
+modeigs = vec([ abs(eig+15) for eig in eigvals ])
+real = vec([ eig.re for eig in eigvals ])
+imag = vec([ eig.im for eig in eigvals ])
 
-b = randn(N)    # starting vector
-mv = [ 10, 20 ] # number of iterations
-kv = [ 5, 10 ]  # basis for new starting vector
-n = 100         # number of restarts
-v = 3           # GS scheme (3: DCGS)
+figure(1)
+subplot(3,3,1)
+scatter(real,imag)
+# circumscribed circles
+cv = [ -5+0.5im -25-15im -25+15im ]
+rv = [ 14 27 27 ]
+cl = ["black" "red" "blue"]
+cr = zeros(3)
+for i in 1:3
+    scatter(real[i],imag[i],s=100,color=cl[i],marker="x")
+    ctr = cv[i]
+    rad = rv[i]
+    scatter(ctr.re,ctr.im,color="black")
+    plt.gcf().gca().add_artist(plt.Circle((ctr.re,ctr.im), rad, fill=false, color=cl[i]))
+    cr[i] = rad/(abs(eigvals[i]-ctr))
+    println("Convergence rate for EV $i ($(eigvals[i])): $(cr[i])")
+end
+plt.gcf().gca().set_aspect("equal")
+ylim(-15,15)
+xlim(-60,10)
 
-t = ev[1]  # target
-figure(1); x = collect(1:n)
-for (m,k) in zip(mv,kv)
-    global iterror
-    outv = complex(zeros(n,k))
-    iterror = zeros(n)
-    for i in 1:n
-        local Q,H,R
-        global b,error
-        i==1 ? println("Startup") : println("Restart $(i-1)")
-        Q,H = arnoldi(A,b,m,v)
-        # extract Ritz values
-        R = eigen(H[1:m,1:m]);
-        ridx = partialsortperm(abs.(R.values),1:k,rev=true)
-        outv[i,:] = R.values[ridx]
-        Rv = Q[:,1:m]*R.vectors[:,ridx]
-        # construct restart vector
-        weights = ones(k,1)
-        b = Rv*weights
-        iterror[i] = abs(outv[i,1]-t)
+# Arnoldi
+b = randn(n)
+
+Q,H = arnoldi(A,b,40,3);
+
+ksteps = [2 4 8 10 20 30 40];
+error = zeros(length(ksteps))
+
+for (j,k) in enumerate(ksteps)
+    subplot(3,3,j+1)
+    # all eigvals
+    scatter(real,imag)
+    # Ritz estimates
+    P = eigen(H[1:k,1:k])
+    rl = [ eig.re for eig in P.values ]
+    ig = [ eig.im for eig in P.values ]
+    # error
+    error[j] = abs.(eigvals[1]-P.values[1])
+
+    scatter(rl,ig,s=50,marker="x",color="black")
+    # eigvals to which we converge fastest
+    for i in 1:3
+        ev = eigvals[i]
+        scatter(ev.re,ev.im,s=200,color="none",edgecolor="red")
     end
-    figure(1)
-    semilogy(x,iterror)
-    figure(k+1)
-    scatter(map(x->x.re,ev),map(x->x.im,ev))
-    scatter(map(x->x.re,outv[n,:]),map(x->x.im,outv[n,:]),marker="x",color="red")
-    title("Setup $m iterations per AM run, restart v build from $k R-v")
+    plt.gcf().gca().set_aspect("equal")
+    ylim(-15,15)
+    xlim(-60,10)
+    ylabel("Im")
+    xlabel("Re")
+    title("Ritz estimates after $k iterations")
 end
+figure(2)
+semilogy(vec(ksteps),1e-10*ones(7,1),color="black")
+xticks(vec(ksteps))
+semilogy(vec(ksteps),error,label="|λ_1 - λ_exact|")
+title("Convergence to the outermost eigenvalue")
+legend()
 
-tol = 1e-10
-for (p,k) in zip(mv,kv)
-    global tol, A
-    local n
-    n=length(ev)
-    v1=ones(n);
-    v1=v1/norm(v1);
-    V,H,r=arnupd(A,k,p,tol,v1);
-    ee=eigvals(H[1:k,1:k]);
-    ee2=ev
-    #I2=sortperm(vec(abs.(ee2)),rev=true); ee2=ee2[I2]; ee2=ee2[1:k];
-    I1=sortperm(vec(abs.(ee)),rev=true);  ee=ee[I1];
-    figure(p)
-    scatter(map(x->x.re,ee2),map(x->x.im,ee2))
-    scatter(map(x->x.re,ee),map(x->x.im,ee),marker="x",color="red")
+
+# Shift and invert
+σ = -11 + 2im
+B = A - σ*I
+figure(5)
+Beigs = [ 1/(eig - σ) for eig in eigvals ]
+Breal = [ eig.re for eig in Beigs ]
+Bimag = [ eig.im for eig in Beigs ]
+scatter(Breal,Bimag)
+tidx = argmin(abs.(eigvals .- σ))
+t = Beigs[tidx]
+scatter(t.re,t.im,s=200,color="none",edgecolor="red")
+ct = -0.7+0.55im
+ρt = 1.8
+plt.gcf().gca().add_artist(plt.Circle((ct.re,ct.im), ρt, fill=false, color="black"))
+plt.gcf().gca().set_aspect("equal")
+ylim(-3,3)
+xlim(-3,5)
+cr = ρt/(abs(Beigs[tidx]-ct))
+println("Convergence rate for EV 1 ($(Beigs[tidx])): $cr")
+
+
+b = randn(n)
+
+Q,H = arnoldiSI(B,b,40,3);
+
+for (j,k) in enumerate(ksteps)
+    global tidx
+    # Ritz estimates
+    P = eigen(H[1:k,1:k])
+    # Convert back
+    eigsA = [ 1/eig + σ for eig in P.values ]
+    # error
+    error[j] = abs.(eigvals[tidx]-eigsA[k])
 end
+figure(6)
+semilogy(vec(ksteps),1e-10*ones(7,1),color="black")
+xticks(vec(ksteps))
+semilogy(vec(ksteps),error,label="|λ_1 - λ_exact|")
+title("Convergence to the outermost eigenvalue")
+legend()
+
+return
