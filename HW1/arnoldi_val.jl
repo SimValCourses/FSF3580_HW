@@ -31,7 +31,7 @@ function arnoldi(A,b,m)
         w=A*Q[:,k]; # Matrix-vector product with last element
         # Orthogonalize w against columns of Q.
         # Implement this function or replace call with code for orthogonalizatio
-        h,β,z=DCGS(Q,w,k);
+        h,β,z=TCGS(Q,w,k);
         #Put Gram-Schmidt coefficients into H
         H[1:(k+1),k]=[h;β];
         # normalize

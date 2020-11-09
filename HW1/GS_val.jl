@@ -27,3 +27,16 @@ function DCGS(Q,w,k)
     h = h[1:k]
     return h,β,y
 end
+
+function TCGS(Q,w,k)
+    h = Q'*w
+    y = w - Q*h
+    g = Q'*y
+    y = y - Q*g
+    f = Q'*y
+    y = y - Q*f
+    h = h + g + f
+    β = norm(y)
+    h = h[1:k]
+    return h,β,y
+end

@@ -2,9 +2,10 @@
 using Pkg
 Pkg.add("MatrixDepot")
 Pkg.add("BenchmarkTools")
+Pkg.add("PyPlot")
 using MatrixDepot, Random, LinearAlgebra, BenchmarkTools, PyPlot
-include("GS.jl")
-include("arnoldi.jl")
+include("GS_val.jl")
+include("arnoldi_val.jl")
 
 nn=10;
 Random.seed!(0)
@@ -21,6 +22,8 @@ for i = 1:length(kv)
     V = eigen(K'*A*K,K'*K)
     global Q, H = arnoldi(A,b,m)
     W = eigen(H[1:m,1:m])
+    figure()
     plot(m*ones(m,1), real(V.values), "*")
     plot(m*ones(m,1), real(W.values), "o")
+    pygui(true)
 end
