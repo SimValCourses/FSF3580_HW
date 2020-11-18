@@ -23,15 +23,15 @@ println("2:nd Should be zero = ", norm(Q'*Q-I));
 function arnoldi(A,b,m)
 
     n=length(b);
-    Q=zeros(n,m+1);
-    H=zeros(m+1,m);
+    Q=complex(zeros(n,m+1));
+    H=complex(zeros(m+1,m));
     Q[:,1]=b/norm(b);
 
     for k=1:m
         w=A*Q[:,k]; # Matrix-vector product with last element
         # Orthogonalize w against columns of Q.
         # Implement this function or replace call with code for orthogonalizatio
-        h,β,z=TCGS(Q,w,k);
+        h,β,z=DCGS(Q,w,k);
         #Put Gram-Schmidt coefficients into H
         H[1:(k+1),k]=[h;β];
         # normalize
