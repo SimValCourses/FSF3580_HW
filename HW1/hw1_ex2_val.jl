@@ -25,7 +25,7 @@ for k = 1:nmax
     global x, e_pm
     x = A*x;
     x = x/norm(x);
-    e_pm = (transpose(x)*A*x) ./ (transpose(x)*x);
+    e_pm = (x'*A*x) ./ (x'*x);
     PM_err_v[k] = abs(e_pm - e_ref);
 end
 println("Eigvec error for power iteration is ",norm(A*x-e_pm*x))
@@ -34,13 +34,13 @@ cPM = ee_sorted[2]/ee_sorted[1];
 # Rayleigh Quotient iteration
 x = x0./norm(x0)
 RQ_err_v = zeros(nmax,1)
-mu = (transpose(x)*A*x) ./ (transpose(x)*x);
+mu = (x'*A*x) ./ (x'*x);
 for k = 1:nmax
     global x, e_rq
     e_rq = mu
     x = (A-e_rq*I)\x;
     x = x/norm(x);
-    e_rq = (transpose(x)*A*x) ./ (transpose(x)*x);
+    e_rq = (x'*A*x) ./ (x'*x);
     RQ_err_v[k] = abs(e_rq - e_ref);
 end
 
@@ -48,7 +48,7 @@ println("Eigvec error for Rayleigh quotient iteration is ", norm(A*x-e_rq*x))
 
 # Plot error
 iter_v = 1:nmax
-thPM = (cPM.^(2*(iter_v)))./cPM
+thPM = (cPM.^(2*(iter_v)))
 figure()
 semilogy(iter_v, PM_err_v, color="blue", linestyle="-", label=L"$\textnormal{Power method}$")
 xlabel(L"$\textnormal{Number of iterations}$")

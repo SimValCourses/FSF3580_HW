@@ -39,12 +39,12 @@ tol = 1e-10                     # convergence criterion
 ϵ_1 = zeros(ksteps[end])
 
 Peigs = complex(zeros(ksteps[end],ksteps[end]))
-for k in 1:ksteps[end]
+for (i,k) in enumerate(ksteps)
     # Ritz estimates as eigvals of Hessenberg matrix
     P = eigen(H[1:k,1:k])
-    Peigs[k,1:k] = P.values
+    Peigs[i,1:k] = P.values
     # error for first eigenvalue
-    ϵ_1[k] = abs.(evA[1]-Peigs[k,1])
+    ϵ_1[i] = min.(abs.(evA[1]-Peigs[i,1]))
 end
 # find convergence step
 idx = findfirst(x -> x < tol, ϵ_1)
