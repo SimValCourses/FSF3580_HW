@@ -29,7 +29,7 @@ println("Time for GMRES m = ", m)
 x, res_v, err_v, time_v = my_gmres_val(A,b,m,x_exact, tol);
 println("Resnorm = ", norm(A*x-b)/norm(b))
 
-m_vec = [5 10 20 50 100 200];# 500];
+m_vec = [5 10 20 50 100];# 200];# 500];
 for j = 1:length(m_vec)
     println("m = ", m_vec[j], "  Time is ", time_v[m_vec[j]],
             "  Resnorm = ", res_v[m_vec[j]])

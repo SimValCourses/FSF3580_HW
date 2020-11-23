@@ -22,7 +22,7 @@ semilogy(1:m, res_gmres, color="black", linestyle="--",
 semilogy(1:m, res_cgn, color="red", linestyle="-",
         label=L"$\textnormal{CGN}$")
 xlabel(L"$\textnormal{Iteration}$")
-ylabel(L"$||Ax-b||_2$")
+ylabel(L"$\frac{||Ax-b||_2}{||b||_2}$")
 legend()
 
 figure(2)
@@ -31,5 +31,5 @@ semilogy(time_gmres, res_gmres,color="black", linestyle="--",
 semilogy(time_cgn, res_cgn, color="red", linestyle="-",
         label=L"$\textnormal{CGN}$")
 xlabel(L"$\textnormal{CPU-time}$")
-ylabel(L"$||Ax-b||_2$")
+ylabel(L"$\frac{||Ax-b||_2}{||b||_2}$")
 legend()

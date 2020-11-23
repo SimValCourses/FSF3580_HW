@@ -25,7 +25,7 @@ function my_gmres_val(A, b, m, x_exact, tol)
         res = norm(A*x-b)/norm(b);
         res_v[i] = norm(A*x-b)/norm(b);	          # residual norm
         err_v[i] = norm(x-x_exact)/norm(x_exact); # error norm
-        if res < tol
+        if res/res_v[1] < tol
             break
         end
     end
