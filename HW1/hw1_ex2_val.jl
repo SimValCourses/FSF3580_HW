@@ -4,7 +4,8 @@ using LinearAlgebra
 #Pkg.add("PyPlot")
 #Pkg.add("LaTeXStrings")
 using PyPlot, LaTeXStrings
-
+include("PM_val.jl")
+include("RQI_val.jl")
 
 # Define matrix
 A = [1 2 3
@@ -17,39 +18,38 @@ e_ref = ee_sorted[1]
 
 x0 = [1; 1; 1]
 nmax = 20
+iter_v = 1:nmax
 
 # Power iteration
-x = x0./norm(x0)
-PM_err_v = zeros(nmax,1)
-for k = 1:nmax
-    global x, e_pm
-    x = A*x;
-    x = x/norm(x);
-    e_pm = (x'*A*x) ./ (x'*x);
-    PM_err_v[k] = abs(e_pm - e_ref);
-end
+x = x0./norm(x0);
+x, e_pm, PM_err_v = PM(A, x, nmax, e_ref)
 println("Eigvec error for power iteration is ",norm(A*x-e_pm*x))
 cPM = ee_sorted[2]/ee_sorted[1];
+thPM = (cPM.^(2*(iter_v)))./cPM;
 
 # Rayleigh Quotient iteration
-x = x0./norm(x0)
-RQ_err_v = zeros(nmax,1)
-mu = (x'*A*x) ./ (x'*x);
-for k = 1:nmax
-    global x, e_rq
-    e_rq = mu
-    x = (A-e_rq*I)\x;
-    x = x/norm(x);
-    e_rq = (x'*A*x) ./ (x'*x);
-    RQ_err_v[k] = abs(e_rq - e_ref);
+x = x0./norm(x0);
+x, e_rq, RQ_err_v = RQI(A, x, nmax, e_ref)
+println("Eigvec error for Rayleigh quotient iteration is ", norm(A*x-e_rq*x))
+thRQ[1] = RQ_err_v[1]
+for i = 2:nmax
+    thRQ[i] = RQ_err_v[i-1]^(3);
 end
 
-println("Eigvec error for Rayleigh quotient iteration is ", norm(A*x-e_rq*x))
+# Non-symmetric matrix
+B = [1 2 4
+     2 2 2
+     3 2 9];
 
-# Plot error
-iter_v = 1:nmax
-thPM = (cPM.^(2*(iter_v)))
-figure()
+ee_B = eigvals(B) # compute exact eigenvalues
+ee_sorted_B = sort(ee_B, by=abs, rev=true)
+e_ref_B = ee_sorted_B[1]
+
+y = x0./norm(x0)
+y, e_rq_B, RQ_err_v_B = RQI(B, y, nmax, e_ref_B)
+
+# Plotting
+figure(1)
 semilogy(iter_v, PM_err_v, color="blue", linestyle="-", label=L"$\textnormal{Power method}$")
 xlabel(L"$\textnormal{Number of iterations}$")
 ylabel(L"$\textnormal{Eigenvalue error}$")
@@ -60,8 +60,7 @@ semilogy(iter_v, thPM, color="blue", linestyle="--", label=L"$\textnormal{Theore
 pygui(true)
 legend()
 
-
-thRQ = (RQ_err_v.^(3 .^(iter_v)))./(RQ_err_v[1]^2)
+figure(2)
 semilogy(iter_v, RQ_err_v, color="red", linestyle="-",
         label=L"$\textnormal{Rayleigh quotient}$")
 semilogy(iter_v, thRQ, color="red", linestyle="--",
@@ -74,28 +73,7 @@ xlim(0,15)
 pygui(true)
 legend()
 
-# Non-symmetric matrix
-B = [1 2 4
-     2 2 2
-     3 2 9]
-
-ee_B = eigvals(B) # compute exact eigenvalues
-ee_sorted_B = sort(ee_B, by=abs, rev=true)
-e_ref_B = ee_sorted_B[1]
-
-y = x0./norm(x0)
-RQ_err_v_B = zeros(nmax,1)
-mu_B = (transpose(y)*B*y) ./ (transpose(y)*y);
-for k = 1:nmax
-    global y, e_rq_B
-    e_rq_B = mu_B
-    y = (B-e_rq_B*I)\y;
-    y = y/norm(y);
-    e_rq_B = (transpose(y)*B*y) ./ (transpose(y)*y);
-    RQ_err_v_B[k] = abs(e_rq_B - e_ref_B);
-end
-
-figure()
+figure(3)
 semilogy(iter_v, RQ_err_v, color="red", linestyle="-",
         label=L"$\textnormal{Rayleigh quotient symmetric}$")
 semilogy(iter_v, RQ_err_v_B, color="black", linestyle="-.",
