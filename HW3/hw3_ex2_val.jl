@@ -1,3 +1,4 @@
+# Exercise 2 - HW3
 using LinearAlgebra, PyPlot, LaTeXStrings
 include("QR_val.jl")
 include("alpha_example.jl")

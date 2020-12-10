@@ -1,3 +1,4 @@
+# Exercise 3 - HW3
 using LinearAlgebra, PyPlot
 include("QR_val.jl")
 include("naive_hessenberg_red_val.jl")

@@ -1,3 +1,4 @@
+# Exercise 6 - HW3
 using LinearAlgebra, PyPlot, LaTeXStrings
 
 expv = -16:1:-1;

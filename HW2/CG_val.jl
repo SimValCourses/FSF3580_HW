@@ -21,7 +21,7 @@ function my_cg_val(A,b,m, x_exact)
             time_v[i] = time_v[i-1] + t_cg.time;
         end
         res_v[i]= norm(A*x-b)/norm(b)	              # residual norm
-        err_v[i]= sqrt(norm((x-x_exact)'*(A*(x-x_exact))))); # error norm
+        err_v[i]= sqrt(norm((x-x_exact)'*(A*(x-x_exact)))); # error norm
     end
     return x, res_v, err_v, time_v
 end

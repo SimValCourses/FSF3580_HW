@@ -31,9 +31,10 @@ thPM = (cPM.^(2*(iter_v)))./cPM;
 x = x0./norm(x0);
 x, e_rq, RQ_err_v = RQI(A, x, nmax, e_ref)
 println("Eigvec error for Rayleigh quotient iteration is ", norm(A*x-e_rq*x))
-thRQ[1] = RQ_err_v[1]
+thRQ = zeros(nmax,1);
+thRQ[1] = RQ_err_v[1];
 for i = 2:nmax
-    thRQ[i] = RQ_err_v[i-1]^(3);
+    global thRQ[i] = RQ_err_v[i-1]^(3);
 end
 
 # Non-symmetric matrix

@@ -5,7 +5,7 @@ include("arnoldi_val.jl")
 include("shift_invert_arnoldi_val.jl")
 include("GS_val.jl")
 Random.seed!(0)
-bw = MAT.matread("Bwedge.mat")
+bw = MAT.matread("../HW1/Bwedge.mat")
 
 evA = bw["B_eigvals"];
 A = bw["B"];
@@ -47,7 +47,7 @@ for (j,k) in enumerate(ksteps)
 end
 
 # Shift-and-invert Arnoldi method
-mu =-9.8+1.5im
+mu =-7+2im
 steps = [10 20 30];
 for i = 1:length(steps)
     n = steps[i]
@@ -58,7 +58,7 @@ for i = 1:length(steps)
     # error
     idx = argmin(abs.(evA .- (-9.8 + 2im)))
     idx2 = argmin(abs.(lambda .- (-9.8 + 2im)))
-    ϵ_SI = abs.(evA[idx] - lambda[idx2])
+    global ϵ_SI = abs.(evA[idx] - lambda[idx2])
     println("\t n = $n: ϵ = $(ϵ_SI)")
 
     figure(i+length(ksteps)+1)
