@@ -24,25 +24,28 @@ err_sin = norm(sin(A_test)-F);
 # Power of a function
 A = rand(100,100);
 A = A/norm(A);
-N_vec = 10:10:500;
+N_vec = 20:10:500;
 t = time_v(zeros(length(N_vec),1), zeros(length(N_vec),1));
+nrun = 5;
 
-for (i,N) in enumerate(N_vec)
-    g = z->z^N
-    parl = @timed F = schur_parlett_val(A, g);
-    naive = @timed B = naive_power(A, N)
-    t.naive[i] = naive.time;
-    t.parl[i] = parl.time;
-    println("Error for Schur-Parlett N = ", N, " is ", norm(A^N-F))
-    println("Error for naive N = ", N, " is ", norm(A^N-B))
+for j = 1:nrun
+    for (i,N) in enumerate(N_vec)
+        g = z->z^N
+        parl = @timed F = schur_parlett_val(A, g);
+        naive = @timed B = naive_power(A, N)
+        t.naive[i] = naive.time;
+        t.parl[i] = parl.time;
+        println("Error for Schur-Parlett N = ", N, " is ", norm(A^N-F))
+        println("Error for naive N = ", N, " is ", norm(A^N-B))
+    end
+
+    pygui(true)
+    figure(j)
+    semilogy(N_vec, t.naive, color="black", linestyle="--",
+            label=L"$\textnormal{Naive}$")
+    semilogy(N_vec, t.parl, color="red", linestyle="-",
+            label=L"$\textnormal{Schur-Parlett}$")
+    xlabel(L"N")
+    ylabel(L"$\textnormal{CPU-time}$")
+    legend()
 end
-
-pygui(true)
-figure(1)
-semilogy(N_vec, t.naive, color="black", linestyle="--",
-        label=L"$\textnormal{Naive}$")
-semilogy(N_vec, t.parl, color="red", linestyle="-",
-        label=L"$\textnormal{Schur-Parlett}$")
-xlabel(L"N")
-ylabel(L"$\textnormal{CPU-time}$")
-legend()

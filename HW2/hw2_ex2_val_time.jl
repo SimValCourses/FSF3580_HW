@@ -1,10 +1,10 @@
 # Exercise 2 timing - HW2
 using Pkg
-Pkg.add("MatrixDepot")
-Pkg.add("BenchmarkTools")
-Pkg.add("PyPlot")
-Pkg.add("LaTeXStrings")
-Pkg.add("IterativeSolvers")
+#Pkg.add("MatrixDepot")
+#Pkg.add("BenchmarkTools")
+#Pkg.add("PyPlot")
+#Pkg.add("LaTeXStrings")
+#Pkg.add("IterativeSolvers")
 using MatrixDepot, Random, LinearAlgebra, PyPlot, BenchmarkTools
 using SparseArrays, LaTeXStrings, IterativeSolvers
 include("GMRES_val.jl")
@@ -23,7 +23,7 @@ t_exact = back.time;
 println("Time for backslash = ", t_exact)
 println("Res for backslash = ", norm(A*x_exact-b)/norm(b))
 
-tol = 1e-5;
+tol = 1e-25;
 m = n;
 println("Time for GMRES m = ", m)
 x, res_v, err_v, time_v = my_gmres_val(A,b,m,x_exact, tol);

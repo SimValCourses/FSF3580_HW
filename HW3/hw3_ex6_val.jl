@@ -1,7 +1,7 @@
 # Exercise 6 - HW3
 using LinearAlgebra, PyPlot, LaTeXStrings
 
-expv = -16:1:-1;
+expv = -10:1:-1;
 ϵ_vec = 10.0.^expv;
 err_v = zeros(length(ϵ_vec),1);
 

@@ -26,8 +26,8 @@ for (i,m) in enumerate(m_vec)
 end
 
 expv = -1:-1:-10;
-ϵ_vec = [0.4; 10.0.^expv];
-σ_vec = [1; 10];
+ϵ_vec = [0.4; 10.0.^expv; 0];
+σ_vec = [1; 0];
 H_err = zeros(length(ϵ_vec), length(σ_vec));
 
 for (i, ϵ) in enumerate(ϵ_vec)

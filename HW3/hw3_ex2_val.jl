@@ -4,7 +4,7 @@ include("QR_val.jl")
 include("alpha_example.jl")
 
 tol = 1e-10;
-alpha_v = 10.0.^(-5:1:5);
+alpha_v = 10.0.^(-1:1:5);
 n = 20;
 iterv = zeros(length(alpha_v),1);
 err_m = zeros(n,n,length(alpha_v));
