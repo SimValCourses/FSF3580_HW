@@ -5,6 +5,7 @@ function my_cgn_val(A, b, m, x_exact, A_orig, b_orig)
     res_v = zeros(m,1);
     err_v = zeros(m,1);
     res_v_orig = zeros(m,1);
+    res_v_2 = zeros(m,1);
     time_v = zeros(m,1);
 
     for i = 1:m
@@ -24,6 +25,7 @@ function my_cgn_val(A, b, m, x_exact, A_orig, b_orig)
         res_v[i]= norm(A*x-b)/norm(b)	         # residual norm
         err_v[i]= norm(x-x_exact)/norm(x_exact); # error norm
         res_v_orig[i]= norm(A_orig*x-b_orig)/norm(b_orig); # error norm
+        res_v_2[i] = norm(r);
     end
-    return x, res_v, err_v, time_v, res_v_orig
+    return x, res_v, err_v, time_v, res_v_orig, res_v_2
 end

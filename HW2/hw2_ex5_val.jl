@@ -13,7 +13,7 @@ c = A'*b;
 
 x_exact = A\b;
 m = 100;
-x_cgn, res_cgn, err_cgn, time_cgn, res_cgn_2 = my_cgn_val(As, c, m, x_exact, A, b)
+x_cgn, res_cgn, err_cgn, time_cgn, res_cgn_2, res_cgn_3 = my_cgn_val(As, c, m, x_exact, A, b)
 x_gmres, res_gmres, err_gmres, time_gmres = my_gmres_val(A,b,m, x_exact, 1e-18);
 
 pygui(true)

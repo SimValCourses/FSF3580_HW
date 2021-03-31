@@ -4,7 +4,7 @@ include("QR_val.jl")
 include("alpha_example.jl")
 
 tol = 1e-10;
-alpha_v = 10.0.^(-1:1:5);
+alpha_v = 10.0.^(collect(-1:1:5));
 n = 20;
 iterv = zeros(length(alpha_v),1);
 err_m = zeros(n,n,length(alpha_v));
@@ -29,7 +29,7 @@ for (i, α) in enumerate(alpha_v)
 end
 
 pygui(true)
-figure(1)
+figure(3)
 semilogx(alpha_v, iterv, color="red", linestyle="-",
         label=L"$\textnormal{Number of iterations}$")
 semilogx(alpha_v, iterv_th, color="black", linestyle="--",

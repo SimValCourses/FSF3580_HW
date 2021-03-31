@@ -24,7 +24,7 @@ function myqrtol(A,tol)
     m = 0;
     while err > tol
         m += 1;
-        F = qr(Am);
+        global F = qr(Am);
         Am = F.R*F.Q;
         err = maximum(maximum(abs.(tril(Am,-1))))
     end

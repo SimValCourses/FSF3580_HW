@@ -2,7 +2,7 @@ using MAT, PyPlot, Statistics, Random, LinearAlgebra
 include("arnoldi.jl")
 include("GS.jl")
 Random.seed!(0)
-bw = MAT.matread("Bwedge.mat")
+bw = MAT.matread("../HW1/Bwedge.mat")
 
 evA = bw["B_eigvals"];
 A = bw["B"];

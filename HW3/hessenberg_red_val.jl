@@ -8,7 +8,7 @@ function hessenberg_red_val(A)
     for k=1:n-2
         x = A[k+1:n,k];
         ρ = -sign(x[1]);
-        α = norm(x);
+        α = ρ*norm(x);
         e1 = zeros(n-k,1);
         e1[1] = 1;
         z = x-α.*e1;

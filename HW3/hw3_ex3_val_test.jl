@@ -18,8 +18,6 @@ for (i,m) in enumerate(m_vec)
     A = alpha_example(1, m)
     naive = @timed H_naive = naive_hessenberg_red_val(A);
     hess = @timed H = hessenberg_red_val(A);
-    global H_naive = naive_hessenberg_red_val(A);
-    global H = hessenberg_red_val(A);
     t.naive[i] = naive.time;
     t.hessen[i] = hess.time;
     println("m = ", m)
