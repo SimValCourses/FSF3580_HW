@@ -13,23 +13,25 @@ function QR_val(A,tol)
     iter = 0;
     global err = 1;
     err_v = [];
+    T = deepcopy(A);
     while err > tol
         iter += 1;
-        F = qr(A);
+        F = qr(T);
         Q = F.Q;
         R = F.R;
-        A = R*Q;
+        T = R*Q;
         U = U*Q;
-        err = errfun(A);
+        err = errfun(T);
         err_v = [err_v; err]
     end
-    return A, U, iter, err_v
+    return T, U, iter, err_v
 end
 
 function shifted_QR_val(A, σ)
-    F = qr(A-σ*I);
+    T = deepcopy(A);
+    F = qr(T-σ*I);
     Q = F.Q;
     R = F.R;
-    A = R*Q + σ*I;
-    return A
+    T = R*Q + σ*I;
+    return T
 end

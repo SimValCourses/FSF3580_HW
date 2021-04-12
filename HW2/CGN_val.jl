@@ -12,7 +12,7 @@ function my_cgn_val(A, b, m, x_exact, A_orig, b_orig)
         t_cgn = @timed begin
             alpha = (r'*r)/(p'*A*p);
             x = x + alpha .*p;
-            r_old = r;
+            r_old = deepcopy(r);
             r = r_old - alpha .*(A*p);
             beta = (r'*r)/(r_old'*r_old);
             p = r + beta .*p;

@@ -18,7 +18,7 @@ end
 function myqrtol(A,tol)
 
     n = size(A)[1]
-    Am = A;
+    Am = deepcopy(A);
     err = 1;
 
     m = 0;

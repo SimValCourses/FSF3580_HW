@@ -10,7 +10,7 @@ function my_cg_val(A,b,m, x_exact)
         t_cg = @timed begin
             alpha = (r'*r)/(p'*A*p);
             x = x + alpha .*p;
-            r_old = r;
+            r_old = deepcopy(r);
             r = r_old - alpha .*(A*p);
             beta = (r'*r)/(r_old'*r_old);
             p = r + beta .*p;
