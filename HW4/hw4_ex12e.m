@@ -1,4 +1,4 @@
-nv = [20; 60; 100; 200];
+nv = [20;60;100;160];
 time1 = zeros(length(nv),1);
 time2 = zeros(length(nv),1);
 error_1 = zeros(length(nv),1);

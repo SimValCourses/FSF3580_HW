@@ -1,4 +1,4 @@
-nnv = [50:50:150];
+nnv = [2:2:10];
 res_bs = zeros(length(nnv),1);
 t_bs = zeros(length(nnv),1);
 res_naive = zeros(length(nnv),1);

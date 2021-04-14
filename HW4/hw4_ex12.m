@@ -1,11 +1,11 @@
 com_mode = input('Enter mode:\n');
-nv = [10:20:100];
+nv = [10:20:60];
 tol = 1e-10;
 
 switch com_mode
     case 1
         alpha = 0;
-        fprintf('Backslash on vectorized system, alpha = %6.4f\n', alpha)
+        fprintf('Backslash on vectorized system, alpha = %6.4f', alpha)
         t_1 = zeros(length(nv),1);
         err_1 = zeros(length(nv),1);
         for i = 1:length(nv)
@@ -24,7 +24,7 @@ switch com_mode
         end        
     case 2
         alpha = 0;
-        fprintf('Lyapunov solver, alpha = %6.4f\n', alpha)
+        fprintf('Lyapunov solver, alpha = %6.4f', alpha)
         t_2 = zeros(length(nv),1);
         err_2 = zeros(length(nv),1);
         for i = 1:length(nv)
@@ -37,7 +37,7 @@ switch com_mode
         end         
     case 3
         alpha = 1;
-        fprintf('Backslash on vectorized system, alpha = %6.4f\n', alpha)
+        fprintf('Backslash on vectorized system, alpha = %6.4f', alpha)
         t_3 = zeros(length(nv),1);
         err_3 = zeros(length(nv),1);
         for i = 1:length(nv)
@@ -56,7 +56,7 @@ switch com_mode
         end
     case 4
         alpha = 1;
-        fprintf('GMRES on vectorized system, alpha = %6.4f\n', alpha)
+        fprintf('GMRES on vectorized system, alpha = %6.4f', alpha)
         t_4 = zeros(length(nv),1);
         err_4 = zeros(length(nv),1);
         for i = 1:length(nv)
@@ -75,7 +75,7 @@ switch com_mode
         end
     case 5
         alpha = 1;
-        fprintf('Preconditioned GMRES on vectorized system, alpha = %6.4f\n', alpha)
+        fprintf('Preconditioned GMRES on vectorized system, alpha = %6.4f', alpha)
         t_5 = zeros(length(nv),1);
         err_5 = zeros(length(nv),1);
         for i = 1:length(nv)
@@ -94,7 +94,7 @@ switch com_mode
         end
     case 6
         alpha = 0.1;
-        fprintf('Preconditioned GMRES on vectorized system, alpha, alpha = %6.4f\n', alpha)
+        fprintf('Preconditioned GMRES on vectorized system, alpha, alpha = %6.4f', alpha)
         t_6 = zeros(length(nv),1);
         err_6 = zeros(length(nv),1);
         for i = 1:length(nv)
@@ -112,5 +112,5 @@ switch com_mode
             err_6(i) = norm(Dxx*X6+X6*Dxx+alpha*G_un.*X6-F);
         end
     otherwise
-        error('Enter a number between 1 and 6\n')
+        error('Enter a number between 1 and 6')
 end

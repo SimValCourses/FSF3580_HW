@@ -1,9 +1,0 @@
-using LinearAlgebra
-
-function my_spectral_abscissa(A)
-    P = eigen(A);
-    Peigs = P.values;
-    s = maximum(real(Peigs));
-
-    return s
-end
