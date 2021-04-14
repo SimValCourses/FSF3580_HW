@@ -1,4 +1,4 @@
-Pkg.add("Arpack")
+#Pkg.add("Arpack")
 using Arpack
 
 function spectral_abscissa(A);
