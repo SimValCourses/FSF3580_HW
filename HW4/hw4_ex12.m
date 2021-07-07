@@ -1,5 +1,5 @@
 com_mode = input('Enter mode:\n');
-nv = [10:20:60];
+nv = [10:20:200];
 tol = 1e-10;
 
 switch com_mode
@@ -87,7 +87,8 @@ switch com_mode
             A = Dv + alpha*g_un;
             fv = F(:);
             tStart = tic;
-            x5 = gmres(A,fv,[],tol,[],Dv);
+            P = lyap_prec(Dxx,n);
+            x5 = gmres(A,fv,[],tol,[],P);
             t_5(i) = toc(tStart);
             X5 = reshape(x5,n,length(x5)/n);
             err_5(i) = norm(Dxx*X5+X5*Dxx+alpha*G_un.*X5-F);
@@ -106,7 +107,8 @@ switch com_mode
             A = Dv + alpha*g_un;
             fv = F(:);
             tStart = tic;
-            x6 = gmres(A,fv,[],tol,[],Dv);
+            P = lyap_prec(Dxx,n);
+            x6 = gmres(A,fv,[],tol,[],P);
             t_6(i) = toc(tStart);
             X6 = reshape(x6,n,length(x6)/n);
             err_6(i) = norm(Dxx*X6+X6*Dxx+alpha*G_un.*X6-F);
